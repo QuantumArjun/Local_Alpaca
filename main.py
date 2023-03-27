@@ -17,12 +17,14 @@ if __name__ == "__main__":
 
     tokenizer = LlamaTokenizer.from_pretrained(args.model)
 
+    #Creates a HuggingFace model from the specified model
     base_model = LlamaForCausalLM.from_pretrained(
         args.model,
-        load_in_8bit=True,
-        device_map='auto',
+        # load_in_8bit=True,
+        # device_map='auto',
     )
 
+    #Uses the provided model, tokeinzer, and model parameters in order to make a HF pipeline
     pipe = pipeline(
         "text-generation",
         model=base_model, 
@@ -33,8 +35,10 @@ if __name__ == "__main__":
         repetition_penalty=1.2
     )
 
+    #Instantiates HF Pipeline
     local_llm = HuggingFacePipeline(pipeline=pipe)
 
+    #Play around - The default instruction that is sent to the model 
     template = """Below is an instruction that describes a task. 
     Write a response that appropriately completes the request.
 
@@ -43,11 +47,11 @@ if __name__ == "__main__":
 
     Answer:"""
 
+    #Turns the prompt into a prompt template 
     prompt = PromptTemplate(template=template, input_variables=["instruction"])
-
     llm_chain = LLMChain(prompt=prompt, llm=local_llm)
 
-    question = "What is the capital of England?"
-
+    #Test the prompt template on a basic question
+    question = "What is your name?"
     print(llm_chain.run(question))
 
